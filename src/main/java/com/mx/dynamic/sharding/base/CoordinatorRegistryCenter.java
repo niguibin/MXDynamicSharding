@@ -20,9 +20,5 @@ public interface CoordinatorRegistryCenter extends RegistryCenter {
     
     void persistEphemeralSequential(String key);
     
-    void addCacheData(String cachePath);
-    
-    void evictCacheData(String cachePath);
-    
-    Object getRawCache(String cachePath);
+    Object getRawCache();
 }

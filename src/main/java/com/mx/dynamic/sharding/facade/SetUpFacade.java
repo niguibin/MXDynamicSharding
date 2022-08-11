@@ -1,9 +1,13 @@
 package com.mx.dynamic.sharding.facade;
 
-import com.mx.dynamic.sharding.election.LeaderService;
-import com.mx.dynamic.sharding.manager.ListenerManagerService;
-import com.mx.dynamic.sharding.server.InstanceService;
-import com.mx.dynamic.sharding.server.ReconcileService;
+import com.mx.dynamic.sharding.node.listener.ListenerManager;
+import com.mx.dynamic.sharding.node.service.InstancesService;
+import com.mx.dynamic.sharding.node.service.LeaderService;
+import com.mx.dynamic.sharding.node.service.ReconcileService;
+import com.mx.dynamic.sharding.node.service.ShardingService;
+import com.mx.dynamic.sharding.node.storage.NodeStorage;
+import com.mx.dynamic.sharding.notice.ShardingNotice;
+import com.mx.dynamic.sharding.registry_center.CoordinatorRegistryCenter;
 
 /**
  * @author: niguibin
@@ -11,30 +15,32 @@ import com.mx.dynamic.sharding.server.ReconcileService;
  */
 public class SetUpFacade {
 
-    private LeaderService leaderService;
+    private final LeaderService leaderService;
 
-    private InstanceService instanceService;
+    private final InstancesService instancesService;
 
-    private ReconcileService reconcileService;
+    private final ReconcileService reconcileService;
 
-    private ListenerManagerService listenerManagerService;
+    private final ListenerManager listenerManager;
 
-    public SetUpFacade() {
-        leaderService = new LeaderService();
-        instanceService = new InstanceService();
-        reconcileService = new ReconcileService();
-        listenerManagerService = new ListenerManagerService();
+    public SetUpFacade(CoordinatorRegistryCenter registryCenter, ShardingNotice shardingNotice) {
+        NodeStorage nodeStorage = new NodeStorage(registryCenter);
+        this.leaderService = new LeaderService(nodeStorage);
+        this.instancesService = new InstancesService(nodeStorage);
+        ShardingService shardingService = new ShardingService(nodeStorage);
+        this.reconcileService = new ReconcileService(shardingService);
+        this.listenerManager = new ListenerManager(leaderService, instancesService, shardingService, nodeStorage, shardingNotice);
     }
 
-    public void registerStartUpInfo() {
-        listenerManagerService.startAllListeners();
+    public void start() {
+        listenerManager.addAllListeners();
 
         leaderService.electLeader();
 
-        instanceService.persistOnline();
+        instancesService.persistOnline();
 
-        if (!reconcileService.isRunning()) {
-            reconcileService.startAsync();
-        }
+//        if (!reconcileService.isRunning()) {
+//            reconcileService.startAsync();
+//        }
     }
 }

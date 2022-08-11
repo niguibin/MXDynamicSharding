@@ -1,10 +1,11 @@
 package com.mx.dynamic.sharding;
 
-import com.mx.dynamic.sharding.base.CoordinatorRegistryCenter;
-import com.mx.dynamic.sharding.base.InstanceManager;
-import com.mx.dynamic.sharding.entity.Instance;
-import com.mx.dynamic.sharding.facade.LiteFacade;
+import com.mx.dynamic.sharding.context.InstanceManager;
+import com.mx.dynamic.sharding.context.ServerInstance;
 import com.mx.dynamic.sharding.facade.SetUpFacade;
+import com.mx.dynamic.sharding.notice.ShardingNotice;
+import com.mx.dynamic.sharding.registry_center.zookeeper.ZookeeperConfiguration;
+import com.mx.dynamic.sharding.registry_center.zookeeper.ZookeeperRegistryCenter;
 
 /**
  * @author: niguibin
@@ -12,21 +13,16 @@ import com.mx.dynamic.sharding.facade.SetUpFacade;
  */
 public class DynamicShardBootstrap {
 
-    private CoordinatorRegistryCenter registryCenter;
+    private final SetUpFacade setUpFacade;
 
-    private SetUpFacade setUpFacade;
-
-    private LiteFacade liteFacade;
-
-
-    public DynamicShardBootstrap(CoordinatorRegistryCenter registryCenter) {
-        this.registryCenter = registryCenter;
-        this.setUpFacade = new SetUpFacade();
-        this.liteFacade = new LiteFacade();
-
-        InstanceManager.getINSTANCE().setRegistryCenter(registryCenter);
-        InstanceManager.getINSTANCE().setInstance(new Instance());
-        setUpFacade.registerStartUpInfo();
+    public DynamicShardBootstrap(ZookeeperConfiguration zkConfig, ShardingNotice shardingNotice) {
+        InstanceManager.getINSTANCE().setServerInstance(new ServerInstance());
+        ZookeeperRegistryCenter registryCenter = new ZookeeperRegistryCenter(zkConfig);
+        registryCenter.init();
+        this.setUpFacade = new SetUpFacade(registryCenter, shardingNotice);
     }
 
+    public void start() {
+        this.setUpFacade.start();
+    }
 }

@@ -20,8 +20,7 @@ public final class RegistryCenterConnectionStateListener implements ConnectionSt
 
     @Override
     public void stateChanged(final CuratorFramework client, final ConnectionState newState) {
-        if (ConnectionState.RECONNECTED == newState) { // 如果 zk 重新连接
-            // 设置临时节点 /{jobName}/instances/{jobInstanceId} value 为 jobInstance对象
+        if (ConnectionState.RECONNECTED == newState) {
             instanceService.persistOnline();
         }
     }

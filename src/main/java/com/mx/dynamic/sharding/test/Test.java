@@ -24,7 +24,12 @@ public class Test {
             }
         });
         bootstrap.start();
+
         try {
+            Thread.sleep(60000);
+
+            System.out.println("中止");
+
             Thread.sleep(600000);
         } catch (InterruptedException e) {
             e.printStackTrace();

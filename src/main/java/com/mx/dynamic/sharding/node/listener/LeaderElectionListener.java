@@ -21,15 +21,8 @@ public class LeaderElectionListener extends AbstractCuratorCacheListener {
 
     @Override
     protected void dataChanged(final String path, final CuratorCacheListener.Type eventType, final String data) {
-        if (isActiveElection() && instancesService.hasLocalInstance()) {
+        if (!leaderService.hasLeader() && instancesService.hasLocalInstance()) {
             leaderService.electLeader();
         }
-    }
-
-    // 是否激活选举
-    private boolean isActiveElection() {
-        // 1. 没有 /{jobName}/leader/election/instance 节点
-        // 2. isLocalServerEnabled
-        return !leaderService.hasLeader();
     }
 }

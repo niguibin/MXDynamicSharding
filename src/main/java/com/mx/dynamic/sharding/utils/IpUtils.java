@@ -9,7 +9,6 @@ import java.net.*;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author: niguibin
@@ -19,10 +18,6 @@ import java.util.Objects;
 public class IpUtils {
 
     public static final String IP_REGEX = "((\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)){3})";
-
-    public static final String PREFERRED_NETWORK_INTERFACE = "elasticjob.preferred.network.interface";
-
-    public static final String PREFERRED_NETWORK_IP = "elasticjob.preferred.network.ip";
 
     private static volatile String cachedIpAddress;
 
@@ -37,7 +32,7 @@ public class IpUtils {
             Enumeration<InetAddress> ipAddresses = networkInterface.getInetAddresses();
             while (ipAddresses.hasMoreElements()) {
                 InetAddress ipAddress = ipAddresses.nextElement();
-                if (isValidAddress(ipAddress) && isPreferredAddress(ipAddress)) {
+                if (isValidAddress(ipAddress)) {
                     cachedIpAddress = ipAddress.getHostAddress();
                     return cachedIpAddress;
                 }
@@ -61,17 +56,7 @@ public class IpUtils {
             }
             validNetworkInterfaces.add(networkInterface);
         }
-        NetworkInterface result = null;
-        for (NetworkInterface each : validNetworkInterfaces) {
-            if (isPreferredNetworkInterface(each)) {
-                result = each;
-                break;
-            }
-        }
-        if (null == result) {
-            result = getFirstNetworkInterface(validNetworkInterfaces);
-        }
-        return result;
+        return getFirstNetworkInterface(validNetworkInterfaces);
     }
 
     private static NetworkInterface getFirstNetworkInterface(final List<NetworkInterface> validNetworkInterfaces) {
@@ -80,7 +65,7 @@ public class IpUtils {
             Enumeration<InetAddress> addresses = each.getInetAddresses();
             while (addresses.hasMoreElements()) {
                 InetAddress inetAddress = addresses.nextElement();
-                if (isValidAddress(inetAddress) && isPreferredAddress(inetAddress)) {
+                if (isValidAddress(inetAddress)) {
                     result = each;
                     break;
                 }
@@ -92,11 +77,6 @@ public class IpUtils {
         return result;
     }
 
-    private static boolean isPreferredNetworkInterface(final NetworkInterface networkInterface) {
-        String preferredNetworkInterface = System.getProperty(PREFERRED_NETWORK_INTERFACE);
-        return Objects.equals(networkInterface.getDisplayName(), preferredNetworkInterface);
-    }
-
     private static boolean ignoreNetworkInterface(final NetworkInterface networkInterface) {
         try {
             return null == networkInterface
@@ -106,15 +86,6 @@ public class IpUtils {
         } catch (final SocketException ex) {
             return true;
         }
-    }
-
-    private static boolean isPreferredAddress(final InetAddress inetAddress) {
-        String preferredNetworkIp = System.getProperty(PREFERRED_NETWORK_IP);
-        if (null == preferredNetworkIp) {
-            return true;
-        }
-        String hostAddress = inetAddress.getHostAddress();
-        return hostAddress.startsWith(preferredNetworkIp) || hostAddress.matches(preferredNetworkIp);
     }
 
     private static boolean isValidAddress(final InetAddress inetAddress) {
@@ -140,5 +111,10 @@ public class IpUtils {
             cachedHostName = "unknown";
         }
         return cachedHostName;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(getIp());
+        System.out.println(getHostName());
     }
 }

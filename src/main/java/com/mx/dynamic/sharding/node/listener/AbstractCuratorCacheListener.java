@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * @author: niguibin
  * @date: 2022/8/10 11:48 上午
+ * @description: 节点监听器
  */
 public abstract class AbstractCuratorCacheListener implements CuratorCacheListener {
     @Override

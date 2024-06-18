@@ -8,6 +8,7 @@ import java.util.List;
 /**
  * @author: niguibin
  * @date: 2022/8/9 3:41 下午
+ * @description: 事务执行回调接口
  */
 public interface TransactionExecutionCallback {
     List<CuratorOp> createCuratorOperators(TransactionOp transactionOp) throws Exception;

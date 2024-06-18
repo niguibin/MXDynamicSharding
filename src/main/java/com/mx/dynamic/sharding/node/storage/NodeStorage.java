@@ -80,9 +80,17 @@ public class NodeStorage {
     }
 
     public void executeInLeader(String latchNode, LeaderExecutionCallback callback) {
+        // LeaderLatch 不管是否选举成功，都需要调用 close 方法，因此这里放在 try 中
         try (LeaderLatch latch = new LeaderLatch(getClient(), latchNode)) {
+            // 开始选举，创建临时序列节点 latchNode，最小序列的那个节点为主
             latch.start();
+            // 阻塞，直到选举成功
             latch.await();
+            // 选举结束后执行回调，该回调方法中去创建临时节点 /leader/election/instance
+            // 这儿感觉有问题，此时应该只有 leader 才可以执行该回调函数去创建节点 /leader/election/instance，
+            // 但是这个各个机器都执行到这儿，都去执行回调函数，然后再都去创建临时节点 /leader/election/instance,
+            // 所以 leader 选举仍然是依靠在回调函数中创建临时节点 /leader/election/instance 来选举成功的，和 LeaderLatch 没一点关系啊
+            // 这儿真正的方法应该是使用 LeaderLatch#hasLeadership 方法判断本机是不是 leader，是的话才调用回调函数去创建临时节点 /leader/election/instance
             callback.execute();
         } catch (Exception e) {
             handleException(e);

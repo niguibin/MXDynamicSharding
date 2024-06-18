@@ -25,6 +25,8 @@ public class ServerInstance {
     private String serverIp;
 
     public ServerInstance() {
+        // 本机实例 id
+        // 192.168.1.3@-@14609
         this(IpUtils.getIp() + DELIMITER + ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
     }
 

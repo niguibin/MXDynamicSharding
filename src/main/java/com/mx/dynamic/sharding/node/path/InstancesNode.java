@@ -17,10 +17,14 @@ public class InstancesNode {
         return path.startsWith(ROOT);
     }
 
+    // 返回 /instances/192.168.1.3@-@14609
     public static String getLocalInstancePath() {
         return getInstancePath(InstanceManager.getINSTANCE().getServerInstance().getInstanceId());
     }
 
+    // 返回如下字符串
+    // instanceId: 192.168.1.3@-@14609
+    // serverIp: 192.168.1.3
     public static String getLocalInstanceValue() {
         return YamlEngine.marshal(InstanceManager.getINSTANCE().getServerInstance());
     }

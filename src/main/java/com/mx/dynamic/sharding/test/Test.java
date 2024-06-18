@@ -4,6 +4,7 @@ import com.mx.dynamic.sharding.DynamicShardBootstrap;
 import com.mx.dynamic.sharding.context.ShardingContext;
 import com.mx.dynamic.sharding.notice.ShardingNotice;
 import com.mx.dynamic.sharding.registry_center.zookeeper.ZookeeperConfiguration;
+import com.mx.dynamic.sharding.registry_center.zookeeper.ZookeeperRegistryCenter;
 
 /**
  * @author: niguibin
@@ -30,10 +31,24 @@ public class Test {
 
             System.out.println("中止");
 
-            Thread.sleep(600000);
+            Thread.sleep(3600000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
+    }
+
+    public static void main2(String[] args) {
+        ZookeeperConfiguration zkConfig = new ZookeeperConfiguration("127.0.0.1:2181", "services/test");
+        zkConfig.setSessionTimeoutMilliseconds(80000);
+        ZookeeperRegistryCenter registryCenter = new ZookeeperRegistryCenter(zkConfig);
+        registryCenter.init();
+        registryCenter.persistEphemeral("/hello", "world");
+
+        try {
+            Thread.sleep(20000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
